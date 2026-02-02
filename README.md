@@ -22,7 +22,7 @@ A beautiful macOS native app that fixes common security issues preventing apps a
 
 **To run MacApp Fixer for the first time:**
 
-1. Download the latest release
+1. Download and unzip the latest release
 2. Open **Terminal**
 3. Type `xattr -d com.apple.quarantine ` (note the space at the end)
 4. Drag and drop `MacAppFixer.app` into the Terminal window
