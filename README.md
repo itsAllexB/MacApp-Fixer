@@ -107,7 +107,6 @@ MacApp Fixer:
 - ✅ No data collection
 - ✅ Open source - you can verify the code yourself
 - ✅ Uses macOS's built-in `xattr` and `codesign` tools
-- ⚠️ Requires admin privileges (only for the operations, not the app itself)
 
 ## 📋 Supported File Types
 
