@@ -24,8 +24,8 @@ Have a feature request or suggestion? Open an issue and describe:
 
 1. **Fork and clone the repository**
    ```bash
-   git clone
-   cd macapp-fixer
+   git clone https://github.com/itsAllexB/MacApp-Fixer.git
+   cd MacApp-Fixer
    ```
 
 2. **Build and run**

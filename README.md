@@ -3,10 +3,6 @@
 A beautiful macOS native app that fixes common security issues preventing apps and installers from opening.
 
 <p align="center">
-  <img src="Sources/Resources/App_Icon.png" width="128" height="128" alt="MacApp Fixer Icon">
-</p>
-
-<p align="center">
   <img src="Sources/Resources/App_interface.png" alt="MacApp Fixer Interface" width="600">
 </p>
 
@@ -52,8 +48,8 @@ A beautiful macOS native app that fixes common security issues preventing apps a
 
 ### Option 1: Run Directly
 ```bash
-git clone https://github.com/yourusername/macapp-fixer.git
-cd macapp-fixer
+git clone https://github.com/itsAllexB/MacApp-Fixer.git
+cd MacApp-Fixer
 swift run
 ```
 
