@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
+import Darwin
 
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -52,6 +53,47 @@ struct ContentView: View {
                             .frame(maxWidth: 280)
                         
 
+                        
+                            // Error details
+                        if appState == .error && !errorDetails.isEmpty {
+                            ZStack(alignment: .topTrailing) {
+                                ScrollView {
+                                    Text(errorDetails)
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundStyle(.red.opacity(0.8))
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(8)
+                                        .padding(.trailing, 24) // Make room for copy button
+                                }
+                                .frame(height: 80)
+                                .background {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.red.opacity(0.05))
+                                }
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .strokeBorder(Color.red.opacity(0.2), lineWidth: 1)
+                                }
+                                
+                                // Copy Button
+                                Button(action: {
+                                    let pasteboard = NSPasteboard.general
+                                    pasteboard.clearContents()
+                                    pasteboard.setString(errorDetails, forType: .string)
+                                }) {
+                                    Image(systemName: "doc.on.doc")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(.red.opacity(0.6))
+                                        .padding(6)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .help("Copy error log")
+                                .padding(2)
+                            }
+                            .padding(.top, 4)
+                        }
                         
                         // Close button for error state
                         if appState == .error {
@@ -405,7 +447,7 @@ struct ContentView: View {
             
             // Step 1: Remove quarantine (if enabled)
             if shouldRemoveQuarantine {
-                let (quarantineSuccess, quarantineError) = runUnquarantine(path: url.path)
+                let (quarantineSuccess, quarantineError) = runUnquarantine(url: url)
                 if quarantineSuccess {
                     results.append("✓ Quarantine removed")
                 } else {
@@ -456,45 +498,59 @@ struct ContentView: View {
         }
     }
     
-    private nonisolated func runUnquarantine(path: String) -> (success: Bool, error: String?) {
-        let escapedPath = path.replacingOccurrences(of: "\"", with: "\\\"")
-        let scriptSource = """
-        do shell script "xattr -d com.apple.quarantine \\"\(escapedPath)\\"" with administrator privileges
-        """
-        
-        if let script = NSAppleScript(source: scriptSource) {
-            var errorInfo: NSDictionary?
-            script.executeAndReturnError(&errorInfo)
-            
-            if let error = errorInfo {
-                let errorMessage = error[NSAppleScript.errorMessage] as? String ?? "Unknown error"
-                let errorNumber = error[NSAppleScript.errorNumber] as? Int ?? -1
-                return (false, "Quarantine Removal Error (\(errorNumber)):\n\(errorMessage)")
+    private nonisolated func runUnquarantine(url: URL) -> (success: Bool, error: String?) {
+        // Access security scoped resource (needed for drag & drop files)
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessing {
+                url.stopAccessingSecurityScopedResource()
             }
-            return (true, nil)
         }
-        return (false, "Failed to create AppleScript for quarantine removal")
+        
+        let path = url.path
+        let attribute = "com.apple.quarantine"
+        
+        // 0 = Success, -1 = Error
+        let result = removexattr(path, attribute, 0)
+        
+        if result == 0 {
+            return (true, nil)
+        } else {
+            let errorNumber = errno
+            // ENOATTR (93) means the attribute doesn't exist, which counts as success
+            if errorNumber == 93 {
+                return (true, nil)
+            }
+            
+            let errorMessage = String(cString: strerror(errorNumber))
+            return (false, "Quarantine Removal Error (\(errorNumber)): \(errorMessage)")
+        }
     }
     
     private nonisolated func runAdHocSign(path: String) -> (success: Bool, error: String?) {
-        let escapedPath = path.replacingOccurrences(of: "\"", with: "\\\"")
-        
+        let task = Process()
+        task.launchPath = "/usr/bin/codesign"
         // Ad-hoc signing: -s - means no certificate (ad-hoc), --deep signs nested code, -f forces re-signing
-        let scriptSource = """
-        do shell script "codesign -s - -f --deep \\"\(escapedPath)\\"" with administrator privileges
-        """
+        task.arguments = ["-s", "-", "-f", "--deep", path]
         
-        if let script = NSAppleScript(source: scriptSource) {
-            var errorInfo: NSDictionary?
-            script.executeAndReturnError(&errorInfo)
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.standardError = pipe
+        
+        do {
+            try task.run()
+            task.waitUntilExit()
             
-            if let error = errorInfo {
-                let errorMessage = error[NSAppleScript.errorMessage] as? String ?? "Unknown error"
-                let errorNumber = error[NSAppleScript.errorNumber] as? Int ?? -1
-                return (false, "Code Signing Error (\(errorNumber)):\n\(errorMessage)")
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8) ?? ""
+            
+            if task.terminationStatus == 0 {
+                return (true, nil)
+            } else {
+                return (false, "Code Signing Error (Exit Code \(task.terminationStatus)):\n\(output)")
             }
-            return (true, nil)
+        } catch {
+            return (false, "Failed to run codesign process: \(error.localizedDescription)")
         }
-        return (false, "Failed to create AppleScript for code signing")
     }
 }
