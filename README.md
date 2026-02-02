@@ -1,6 +1,6 @@
 # 🔧 MacApp Fixer
 
-A beautiful macOS native app that fixes common security issues preventing apps and installers from opening.
+A simple macOS native app that fixes common security issues preventing apps and installers from opening.
 
 <p align="center">
   <img src="Sources/Resources/App_interface.png" alt="MacApp Fixer Interface" width="600">
