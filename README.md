@@ -1,6 +1,21 @@
-# 🔧 MacApp Fixer
+<div align="center">
+  <img src="Sources/Resources/App_Icon.png" width="128" alt="MacApp Fixer Logo">
+  
+  # MacApp Fixer
+  
+  [![Platform](https://img.shields.io/badge/platform-macOS-black?style=flat&logo=apple)](https://www.apple.com/macos)
+  [![Downloads](https://img.shields.io/github/downloads/itsAllexB/MacApp-Fixer/total?style=flat&color=green)](https://github.com/itsAllexB/MacApp-Fixer/releases)
+  [![License](https://img.shields.io/badge/license-MIT-blue?style=flat)](LICENSE)
+  [![Language](https://img.shields.io/badge/language-Swift-orange?style=flat&logo=swift)](https://developer.apple.com/swift/)
+  
+  <p align="center">
+    <b>Fix "App is damaged", "Unidentified Developer" and "Quarantine" errors on macOS with a single click.</b>
+    <br />
+    A beautiful native app that handles common permissions and security hurdles for you.
+  </p>
+</div>
 
-A simple macOS app that fixes common security issues preventing apps and installers from opening.
+<br />
 
 <p align="center">
   <img src="Sources/Resources/App_interface.png" alt="MacApp Fixer Interface" width="600">
@@ -107,7 +122,7 @@ MacApp Fixer:
 - ✅ No data collection
 - ✅ Open source - you can verify the code yourself
 - ✅ Uses macOS's built-in `xattr` and `codesign` tools
-
+- 
 ## 📋 Supported File Types
 
 | File Type | Remove Quarantine | Ad-hoc Sign |
