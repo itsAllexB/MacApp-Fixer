@@ -1,6 +1,6 @@
 # 🔧 MacApp Fixer
 
-A simple macOS native app that fixes common security issues preventing apps and installers from opening.
+A simple macOS app that fixes common security issues preventing apps and installers from opening.
 
 <p align="center">
   <img src="Sources/Resources/App_interface.png" alt="MacApp Fixer Interface" width="600">
@@ -36,7 +36,7 @@ A simple macOS native app that fixes common security issues preventing apps and 
 3. Choose your options:
    - ✅ **Remove quarantine** (fixes "damaged" warnings) - works on all file types
    - ✅ **Ad-hoc sign apps** (fixes "unverified developer" warnings) - only for `.app` files
-4. The app will prompt for your password (required for security operations)
+4. The app may prompt for your password
 5. Done! Your file should now open without warnings
 
 ## 🛠️ Build from Source
